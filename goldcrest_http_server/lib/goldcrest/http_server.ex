@@ -24,6 +24,13 @@ defmodule Goldcrest.HTTPServer do
     end
   end
 
+  defp ensure_configured!() do
+    case responder() do
+      nil -> raise "No `responder` configured for `goldcrest_http_server"
+      _responder -> :ok
+    end
+  end
+
   def listen(sock) do
     {:ok, req} = :gen_tcp.accept(sock)
 
@@ -51,10 +58,10 @@ defmodule Goldcrest.HTTPServer do
     Application.get_env(:goldcrest_http_server, :responder)
   end
 
-  defp ensure_configured!() do
-    case responder() do
-      nil -> raise "No `responder` configured for `goldcrest_http_server"
-      _responder -> :ok
-    end
+  def child_spec(init_args) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start, init_args}
+    }
   end
 end
